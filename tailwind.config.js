@@ -10,6 +10,7 @@ export default {
     extend: {
       maxWidth: {
         'md': '600px',
+        'xl': '1200px',
       },
     },
   },

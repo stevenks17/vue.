@@ -59,7 +59,7 @@ const searchAnime = async () => {
         </form>
       </div>
     </header>
-    <main class="max-w-xl mt-4 mr-auto px-7">
+    <main class="max-w-xl mt-4 mx-auto px-7">
       <div class="flex flex-wrap m-0 -mr-2">
         <Card v-for="anime in animeList" :key="anime.mal_id" :anime="anime"/>
       </div>

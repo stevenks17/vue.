@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Card from "./components/Card.vue";
+import ThemeSelector from "./components/ThemeSelector.vue";
 import { ref } from "vue";
 import axios from "axios";
 
@@ -22,13 +23,30 @@ interface Anime {
 const search = ref("");
 const animeList = ref<Anime[]>([]);
 
+
 const searchAnime = async () => {
   try {
     if (search.value !== "") {
-      const res = await axios.get(`https://api.jikan.moe/v4/anime?q=${search.value}`);
+      const res = await axios.get(`https://kitsu.io/api/edge/anime?filter[text]=${search.value}`);
 
       if (res.data && res.data.data) { // Check if data array exists
-        animeList.value = res.data.data;
+        // Transform the response to fit your Anime interface
+        animeList.value = res.data.data.map((anime: any) => {
+          return {
+            mal_id: anime.id,
+            title: anime.attributes.titles.en,
+            url: anime.attributes.canonicalUrl,
+            image_url: anime.attributes.posterImage.small,
+            synopsis: anime.attributes.synopsis,
+            type: anime.attributes.showType,
+            episodes: anime.attributes.episodeCount,
+            score: anime.attributes.averageRating,
+            start_date: anime.attributes.startDate,
+            end_date: anime.attributes.endDate,
+            members: anime.attributes.userCount,
+            rated: anime.attributes.ageRating
+          }
+        });
         console.log("Anime list:", animeList.value);
       } else {
         console.log("Data array not found in response data");
@@ -42,9 +60,9 @@ const searchAnime = async () => {
 </script>
 
 <template>
-  <div id="app">
+  <div id="app" :class="theme">
     <header>
-      <h1 class="text-5xl py-10 text-gray-400 font-normal text-center">
+      <h1 class="text-5xl py-10 text--400 font-normal text-center">
         ANI<strong class="text-blue-400">ME</strong> DATABASE
       </h1>
       <div>
@@ -57,6 +75,7 @@ const searchAnime = async () => {
             v-model="search"
           />
         </form>
+        <ThemeSelector />
       </div>
     </header>
     <main class="max-w-xl mt-4 mx-auto px-7">
@@ -68,6 +87,14 @@ const searchAnime = async () => {
 </template>
 
 <style>
+
+:root {
+  --light-bg-color: #fff;
+  --light-text-color: #333;
+  --dark-bg-color: #05090c;
+  --dark-text-color: #edf0f2;
+}
+
 * {
   margin: 0;
   padding: 0;

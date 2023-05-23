@@ -12,6 +12,9 @@ export default {
         'md': '600px',
         'xl': '1200px',
       },
+      colors: {
+        'vue-green': '#42b883',
+      },
     },
   },
   plugins: [],

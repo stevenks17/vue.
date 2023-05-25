@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import Card from "./components/Card.vue";
 import ThemeSelector from "./components/ThemeSelector.vue";
-import { ref } from "vue";
+import { ref, TransitionGroup, Transition } from "vue";
 import axios from "axios";
+import { fadeTransition } from "./utils/transitions";
 
 interface Anime {
   mal_id: number;
@@ -19,18 +20,17 @@ interface Anime {
   rated: string;
 }
 
-
 const search = ref("");
 const animeList = ref<Anime[]>([]);
-
 
 const searchAnime = async () => {
   try {
     if (search.value !== "") {
-      const res = await axios.get(`https://kitsu.io/api/edge/anime?filter[text]=${search.value}`);
+      const res = await axios.get(
+        `https://kitsu.io/api/edge/anime?filter[text]=${search.value}`
+      );
 
-      if (res.data && res.data.data) { // Check if data array exists
-        // Transform the response to fit your Anime interface
+      if (res.data && res.data.data) {
         animeList.value = res.data.data.map((anime: any) => {
           return {
             mal_id: anime.id,
@@ -44,8 +44,8 @@ const searchAnime = async () => {
             start_date: anime.attributes.startDate,
             end_date: anime.attributes.endDate,
             members: anime.attributes.userCount,
-            rated: anime.attributes.ageRating
-          }
+            rated: anime.attributes.ageRating,
+          };
         });
         console.log("Anime list:", animeList.value);
       } else {
@@ -56,11 +56,10 @@ const searchAnime = async () => {
     console.error("There was an error with the fetch operation: ", error);
   }
 };
-
 </script>
 
 <template>
-  <div id="app" :class="theme">
+  <div id="app">
     <header>
       <h1 class="text-5xl py-10 text--400 font-normal text-center">
         ANI<strong class="text-blue-400">ME</strong> DATABASE
@@ -79,22 +78,15 @@ const searchAnime = async () => {
       </div>
     </header>
     <main class="max-w-xl mt-4 mx-auto px-7">
-      <div class="flex flex-wrap m-0 -mr-2">
-        <Card v-for="anime in animeList" :key="anime.mal_id" :anime="anime"/>
+      <div key="animeList" class="flex flex-wrap m-0 -mr-2">
+        <TransitionGroup v-bind="fadeTransition" v-for="anime in animeList">
+          <Card :anime="anime" :key="anime.mal_id" />
+        </TransitionGroup>
       </div>
     </main>
   </div>
 </template>
-
 <style>
-
-:root {
-  --light-bg-color: #fff;
-  --light-text-color: #333;
-  --dark-bg-color: #05090c;
-  --dark-text-color: #edf0f2;
-}
-
 * {
   margin: 0;
   padding: 0;
